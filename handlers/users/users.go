@@ -48,3 +48,43 @@ func RegisterUser(ctx *gin.Context) {
 	})
 	fmt.Println("[AUTH] User registered with id:", id)
 }
+
+func LoginUser(ctx *gin.Context) {
+	var user models.User
+	err := ctx.ShouldBindJSON(&user)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "error parsing data",
+			"error":   err,
+		})
+		return
+	}
+
+	if user.Email == "" || user.Password == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "missing required fields",
+		})
+		return
+	}
+
+	dbUser, err := repository.GetUserByEmail(user.Email)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "user not found"})
+		return
+	}
+
+	if !utils.VerifyPassword(user.Password, dbUser.Password) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"message": "invalid password"})
+		return
+	}
+
+	token, err := utils.Sign(user.Email)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "something went wrong"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "User logged in", "data": user.Email, "token": token })
+}

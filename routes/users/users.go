@@ -8,4 +8,5 @@ import (
 
 func Users(server *gin.Engine) {
 	server.POST("/register", handlers.RegisterUser)
+	server.POST("/login", handlers.LoginUser)
 }
