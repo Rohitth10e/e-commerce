@@ -16,10 +16,11 @@ func init() {
 	}
 }
 
-func Sign(email string) (string, error) {
+func Sign(email, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"email": email,
+			"role":  role,
 			"exp":   time.Now().Add(24 * time.Hour).Unix(),
 		})
 
@@ -31,29 +32,40 @@ func Sign(email string) (string, error) {
 	return tokenString, nil
 }
 
-func Verify(tokenString string) (string, error) {
+type ClaimsData struct {
+	Email string
+	Role  string
+}
+
+func Verify(tokenString string) (ClaimsData, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil
 	})
 
 	if err != nil {
-		return "", err
+		return ClaimsData{}, err
 	}
 
 	if !token.Valid {
-		return "", fmt.Errorf("invalid token")
+		return ClaimsData{}, fmt.Errorf("invalid token")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
 	if !ok {
-		return "", fmt.Errorf("invalid claims")
+		return ClaimsData{}, fmt.Errorf("invalid claims")
 	}
 
 	email, ok := claims["email"].(string)
 	if !ok {
-		return "", fmt.Errorf("email claim missing")
+		return ClaimsData{}, fmt.Errorf("email claim missing")
 	}
 
-	return email, nil
+	role, ok := claims["role"].(string)
+	if !ok {
+		return ClaimsData{}, fmt.Errorf("role claim missing")
+	}
+
+	return ClaimsData{Email: email, Role: role}, nil
+
 }

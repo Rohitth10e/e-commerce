@@ -79,12 +79,17 @@ func LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	token, err := utils.Sign(user.Email)
+	token, err := utils.Sign(user.Email, user.Role)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "something went wrong"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "User logged in", "data": user.Email, "token": token })
+	ctx.JSON(http.StatusOK, gin.H{"message": "User logged in", "data": gin.H{
+		"id":    dbUser.ID,
+		"name":  dbUser.Name,
+		"email": dbUser.Email,
+		"role":  dbUser.Role,
+	}, "token": token})
 }

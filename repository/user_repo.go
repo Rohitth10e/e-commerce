@@ -20,10 +20,12 @@ func InsertUser(name, email, password, role string) (int, error) {
 }
 
 func GetUserByEmail(email string) (models.User, error) {
-	query := `SELECT password FROM USERS WHERE email=($1)`
+
+	query := `SELECT id, name, email, password, role, created_at FROM USERS WHERE email=($1)`
 
 	var user models.User
 	err := db.Db.QueryRowContext(context.Background(), query, email).Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Role, &user.CreatedAt)
+	fmt.Print(user)
 
 	if err != nil {
 		return models.User{}, fmt.Errorf("insert failed: %w", err)

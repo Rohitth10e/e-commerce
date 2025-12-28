@@ -2,7 +2,8 @@ package main
 
 import (
 	"github/rohitth10e/db"
-	routes "github/rohitth10e/routes/users"
+	user_routes "github/rohitth10e/routes/Users"
+	product_routes "github/rohitth10e/routes/products"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,7 +12,8 @@ func main() {
 	server := gin.Default()
 	db.ConnectDB()
 
-	routes.Users(server)
+	user_routes.Users(server)
+	product_routes.Products(server)
 
 	if err := server.Run(":3000"); err != nil {
 		panic(err)

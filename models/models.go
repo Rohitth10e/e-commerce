@@ -46,3 +46,8 @@ type OrderItem struct {
 	Price     float32   `json:"price"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type Category struct {
+	ID int `json:"id"`
+	Category_name string `json:"category_name"`
+}
